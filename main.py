@@ -1,5 +1,6 @@
 import argparse
 import sys
+from parser.syntax import is_valid_note, is_valid_duration
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -59,17 +60,24 @@ def interactive_loop():
             
             note, duration = parts
             
-            #Store raw input safely (no execution)
-            collected_lines.append((note, duration))
-            print(f"✅ Captured: note = {note}, duration = {duration}")
-        
+            if not is_valid_note(note):
+                print(f"❌ Invalid note: {note}")
+                continue
+            
+            if not is_valid_duration(duration):
+                print(f"❌ Invalid duration: {duration}")
+                continue
+            
+            collected_lines.append((note, float(duration)))
+            print(f"✅ Captured: note - {note}, duration - {duration}")
+            
         except KeyboardInterrupt:
             print("\n🛑 Interupted by user.")
             break
         
         print("\n✅ Session summary: ")
         for n, d in collected_lines:
-            print(f" - {n} for {d} breat(s)")
+            print(f" - {n} for {d} beat(s)")
             
 def main():
     args = parse_arguments()
