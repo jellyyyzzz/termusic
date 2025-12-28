@@ -1,6 +1,5 @@
 import argparse
 import sys
-from parser.syntax import is_valid_note, is_valid_duration
 from engine.timing import TimingEngine
 from parser.syntax import (
     is_valid_note,
@@ -8,6 +7,7 @@ from parser.syntax import (
     is_tempo_command,
     parse_tempo
 )
+from engine.frequency import note_to_frequency
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -86,10 +86,16 @@ def interactive_loop():
                 print(f"❌ Invalid duration: {duration}")
                 continue
             
+            frequency = note_to_frequency(note)
             seconds =  timing.beats_to_seconds(float(duration))
-            collected_lines.append((note, float(duration), seconds))
+            
+            collected_lines.append(
+                (note, frequency, float(duration), seconds)
+            )
+            
             print(
-                f"✅ Captured: {note} | {duration} beat(s) | {seconds:.3f} seconds"
+                f"✅ Captured: {note} | {frequency} Hz | "
+                f"{duration} beat(s) | {seconds:.3f} sec"
             )
             
         except KeyboardInterrupt:
@@ -97,8 +103,10 @@ def interactive_loop():
             break
         
         print("\n✅ Session summary: ")
-        for note, beats, seconds in collected_lines:
-            print(f" - {note} | {beats} beat(s) | {seconds:.3f} seconds")
+        for note, freq, beats, seconds in collected_lines:
+            print(
+                f" - {note} | {freq} Hz | {beats} beat(s) | {seconds:.3f} sec"
+            )
             
 def main():
     args = parse_arguments()
