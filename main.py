@@ -1,6 +1,13 @@
 import argparse
 import sys
 from parser.syntax import is_valid_note, is_valid_duration
+from engine.timing import TimingEngine
+from parser.syntax import (
+    is_valid_note,
+    is_valid_duration,
+    is_tempo_command,
+    parse_tempo
+)
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -31,6 +38,8 @@ def parse_arguments():
     
     return parser.parse_args()
 
+
+timing = TimingEngine(bpm = 120.0)
 def interactive_loop():
     print("🎶Interactive mode selected.🎶")
     print("Type notes like: C4 1")
@@ -58,6 +67,15 @@ def interactive_loop():
                 print("❌Invalid format. Use: NOTE DURATION (e.g., C4 1)")
                 continue
             
+            if is_tempo_command(user_input):
+                try:
+                    new_bpm = parse_tempo(user_input)
+                    timing.set_bpm(new_bpm)
+                    print(f"🎼 Tempo set to {new_bpm} BPM")
+                except ValueError as e:
+                    print(f"❌ {e}")
+                continue
+            
             note, duration = parts
             
             if not is_valid_note(note):
@@ -68,16 +86,19 @@ def interactive_loop():
                 print(f"❌ Invalid duration: {duration}")
                 continue
             
-            collected_lines.append((note, float(duration)))
-            print(f"✅ Captured: note - {note}, duration - {duration}")
+            seconds =  timing.beats_to_seconds(float(duration))
+            collected_lines.append((note, float(duration), seconds))
+            print(
+                f"✅ Captured: {note} | {duration} beat(s) | {seconds:.3f} seconds"
+            )
             
         except KeyboardInterrupt:
             print("\n🛑 Interupted by user.")
             break
         
         print("\n✅ Session summary: ")
-        for n, d in collected_lines:
-            print(f" - {n} for {d} beat(s)")
+        for note, beats, seconds in collected_lines:
+            print(f" - {note} | {beats} beat(s) | {seconds:.3f} seconds")
             
 def main():
     args = parse_arguments()
