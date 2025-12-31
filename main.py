@@ -8,6 +8,7 @@ from parser.syntax import (
     parse_tempo
 )
 from engine.frequency import note_to_frequency
+from engine.audio import play_sine_wave
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -97,6 +98,8 @@ def interactive_loop():
                 f"✅ Captured: {note} | {frequency} Hz | "
                 f"{duration} beat(s) | {seconds:.3f} sec"
             )
+            
+            play_sine_wave(frequency, seconds)
             
         except KeyboardInterrupt:
             print("\n🛑 Interupted by user.")
