@@ -100,9 +100,9 @@ def interactive_loop():
                 f"{duration} beat(s) | {seconds:.3f} sec"
             )
             
-            if collected_lines:
+            """if collected_lines:
                 print("\n▶️ Playing sequence...\n")
-                play_sequence(collected_lines)
+                play_sequence(collected_lines)"""
             
         except KeyboardInterrupt:
             print("\n🛑 Interupted by user.")
@@ -113,6 +113,10 @@ def interactive_loop():
             print(
                 f" - {note} | {freq} Hz | {beats} beat(s) | {seconds:.3f} sec"
             )
+        
+        if collected_lines:
+            print("\n▶️ Playing sequence...\n")
+            play_sequence(collected_lines)
             
 def main():
     args = parse_arguments()
