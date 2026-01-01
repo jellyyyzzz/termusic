@@ -10,6 +10,7 @@ from parser.syntax import (
 from engine.frequency import note_to_frequency
 from engine.audio import play_sine_wave
 from engine.sequencer import play_sequence
+from engine.render import render_sequence_to_wav
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -100,10 +101,6 @@ def interactive_loop():
                 f"{duration} beat(s) | {seconds:.3f} sec"
             )
             
-            """if collected_lines:
-                print("\n▶️ Playing sequence...\n")
-                play_sequence(collected_lines)"""
-            
         except KeyboardInterrupt:
             print("\n🛑 Interupted by user.")
             break
@@ -117,6 +114,13 @@ def interactive_loop():
         if collected_lines:
             print("\n▶️ Playing sequence...\n")
             play_sequence(collected_lines)
+            
+            print("\n🗃️ Rendering to WAV")
+            render_sequence_to_wav(
+                collected_lines,
+                "output/song.wav"
+            )
+            print("✅ Saved to output/song.wav")
             
 def main():
     args = parse_arguments()
