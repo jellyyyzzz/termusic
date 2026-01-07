@@ -1,7 +1,7 @@
 import time
-from engine.audio import play_sine_wave
+from engine.audio import play_wave
 
-def play_sequence(note_events):
+def play_sequence(note_events, waveform="sine"):
     """
     Play a list of notes sequentially.
     
@@ -11,6 +11,6 @@ def play_sequence(note_events):
         ...
     ]
     """
-    for note, frequency, beats, seconds, in note_events:
-        play_sine_wave(frequency, seconds)
+    for note, frequency, beats, seconds, wf in note_events:
+        play_wave(frequency, seconds, wf)
         time.sleep(0.1) #Tiny gap to avoid edge overlap

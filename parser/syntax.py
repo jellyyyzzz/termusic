@@ -25,3 +25,16 @@ def parse_tempo(line: str) -> float:
         raise ValueError("BPM out of allowed range.")
     
     return bpm
+
+def is_synth_command(line: str) -> bool:
+    return line.lower().startswith("@synth")
+
+def parse_synth(line: str) -> str:
+    parts = line.split()
+    if len(parts) != 2:
+        raise ValueError("Invalid synth command.")
+    
+    synth = parts[1].lower()
+    if synth not in ["sine", "square", "saw"]:
+        raise ValueError("Unsupported synth type.")
+    return synth

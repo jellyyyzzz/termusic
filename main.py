@@ -5,10 +5,12 @@ from parser.syntax import (
     is_valid_note,
     is_valid_duration,
     is_tempo_command,
-    parse_tempo
+    parse_tempo,
+    is_synth_command,
+    parse_synth,
 )
 from engine.frequency import note_to_frequency
-from engine.audio import play_sine_wave
+from engine.audio import play_wave
 from engine.sequencer import play_sequence
 from engine.render import render_sequence_to_wav
 
@@ -43,6 +45,7 @@ def parse_arguments():
 
 
 timing = TimingEngine(bpm = 120.0)
+current_waveform = "sine"
 def interactive_loop():
     print("🎶Interactive mode selected.🎶")
     print("Type notes like: C4 1")
@@ -79,6 +82,20 @@ def interactive_loop():
                     print(f"❌ {e}")
                 continue
             
+            if is_synth_command(user_input):
+                try:
+                    current_waveform = parse_synth(user_input)
+                    print(f"🎛 Synth set to {current_waveform}")
+                except ValueError as e:
+                    print(f"❌ {e}")
+                continue
+            
+            parts = user_input.split()
+            
+            if len(parts) != 2:
+                print("❌ Invalid format.  Use: NOTE DURATION")
+                continue
+            
             note, duration = parts
             
             if not is_valid_note(note):
@@ -93,7 +110,7 @@ def interactive_loop():
             seconds =  timing.beats_to_seconds(float(duration))
             
             collected_lines.append(
-                (note, frequency, float(duration), seconds)
+                (note, frequency, float(duration), seconds, current_waveform)
             )
             
             print(
@@ -106,9 +123,10 @@ def interactive_loop():
             break
         
         print("\n✅ Session summary: ")
-        for note, freq, beats, seconds in collected_lines:
+        for note, freq, beats, seconds, waveform in collected_lines:
             print(
-                f" - {note} | {freq} Hz | {beats} beat(s) | {seconds:.3f} sec"
+                f" - {note} | {freq} Hz | {beats} beat(s) |"
+                f" {seconds:.3f} sec | {waveform}"
             )
         
         if collected_lines:

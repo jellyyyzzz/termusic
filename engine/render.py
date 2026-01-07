@@ -3,6 +3,9 @@ from scipy.io.wavfile import write
 from engine.audio import (
     SAMPLE_RATE,
     generate_adsr_envelope,
+    sine_wave,
+    square_wave,
+    saw_wave,
 )
 
 def render_sequence_to_wav(
@@ -15,7 +18,7 @@ def render_sequence_to_wav(
     """
     full_buffer = []
     
-    for note, frequency, beats, seconds, in note_events:
+    for note, frequency, beats, seconds, waveform in note_events:
         t = np.linspace(
             0,
             seconds,
@@ -23,7 +26,14 @@ def render_sequence_to_wav(
             endpoint=False,
         )
         
-        wave = np.sin(2 * np.pi * frequency * t)
+        if waveform == "sine":
+            wave = sine_wave(frequency, t)
+        elif waveform == "square":
+            wave = square_wave(frequency, t)
+        elif waveform == "saw":
+            wave = saw_wave(frequency, t)
+        else:
+            raise ValueError(f"Unsupported waveform: {waveform}")
         
         envelope = generate_adsr_envelope(
             seconds,

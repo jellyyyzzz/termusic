@@ -46,9 +46,19 @@ def generate_adsr_envelope(
     )
     return envelope
 
-def play_sine_wave(
+def sine_wave(frequency, t):
+    return np.sin(2 * np.pi * frequency * t)
+
+def square_wave(frequency, t):
+    return np.sign(np.sin(2 * np.pi * frequency * t))
+
+def saw_wave(frequency, t):
+    return 2 * (t * frequency - np.floor(0.5 + t * frequency))
+
+def play_wave(
     frequency: float,
     duration_seconds: float,
+    waveform: str = "sine",
     amplitude: float = 0.5,
 ):
     """
@@ -65,7 +75,14 @@ def play_sine_wave(
         endpoint=False,
     )
     
-    wave = np.sin(2 * np.pi * frequency * t)
+    if waveform == "sine":
+        wave = sine_wave(frequency, t)
+    elif waveform == "square":
+        wave = square_wave(frequency, t)
+    elif waveform == "saw":
+        wave = saw_wave(frequency, t)
+    else:
+        raise ValueError(f"Unknown waveform: {waveform}")
     
     #ADSR parameters
     attack = 0.01
