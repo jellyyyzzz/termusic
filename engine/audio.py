@@ -3,6 +3,18 @@ import sounddevice as sd
 
 SAMPLE_RATE = 44100 #Standard sample rate for audio
 
+def exponential_curve(length: int, start: float, end: float):
+    """
+    Generate an exponential curve from start to end.
+    """
+    if length <= 0:
+        return np.array([])
+    
+    curve = np.logspace(0, 1, length, endpoint=False)
+    curve = curve / curve.max() #Normalize to 0-1
+    
+    return start + (end - start) * curve
+
 def generate_adsr_envelope(
     duration_seconds: float,
     attack: float,
@@ -27,18 +39,20 @@ def generate_adsr_envelope(
     if sustain_samples < 0:
         raise ValueError("ADSR time exceed note duration.")
     
-    #Attack: 0 -> 1
+    #Attack: linear(0 -> 1)
     attack_env = np.linspace(0, 1, attack_samples, endpoint=False)
     
-    #Decay: 1 -> sustain_level
-    decay_env = np.linspace(1, sustain_level, decay_samples, endpoint=False)
+    #Decay: exponential(1 -> sustain_level)
+    decay_env = exponential_curve(
+        decay_samples, start = 1.0, end = sustain_level
+    )
     
     #Sustain: constant
     sustain_env = np.full(sustain_samples, sustain_level)
     
-    #Release: sustain level -> 0
-    release_env = np.linspace(
-        sustain_level, 0, release_samples, endpoint=False
+    #Release: exponential(sustain level -> 0)
+    release_env = exponential_curve(
+        release_samples, start = sustain_level, end = 0.0
     )
     
     envelope = np.concatenate(
